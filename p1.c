@@ -9,20 +9,34 @@ void exitWithError() {
 
 }
 
+
+void subroutine(int n) {
+	for (int i = 0; i < n; i++) {
+		printf("This is a child process. My pid is %i. My parent's pid is %i\n",
+			getpid(), getppid());
+		sleep(2);
+	}
+}
+
 void forkProgram(int n) {
 	int parentPid = getpid();
-	pid_t pid = fork();
-	if (pid != 0) {
-		pid = fork();
-		if (pid != 0) pid = fork();
+	if (fork() == 0) {
+		subroutine(n);
 	}
-	for (int i = 0; i < n; i++) {
-		if (getpid() == parentPid) {
-			printf("I am the parent and my pid is %i\n", getpid());
+	else {
+		if (fork() == 0) {
+			subroutine(n);
 		}
 		else {
-			printf("I am the child and my pid is %i. My parents pid is %i\n", 
-				getpid(), parentPid);
+			if (fork() == 0) {
+				subroutine(n);
+			}
+			else {
+				for (int i = 0; i < n; i++) {
+					printf("I'm the parent and my pid is %i.\n", getpid());
+					sleep(2);
+				}
+			}
 		}
 	}
 }
